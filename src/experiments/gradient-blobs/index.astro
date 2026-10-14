@@ -1,0 +1,63 @@
+<div class="stage">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+  <h2>Hello, world</h2>
+</div>
+
+<style>
+  .stage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #0b0d12;
+  }
+
+  .blob {
+    position: absolute;
+    width: 45vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.8;
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+
+  .a {
+    background: #18bcf2;
+    top: -10%;
+    left: -5%;
+  }
+
+  .b {
+    background: #a855f7;
+    bottom: -15%;
+    right: -5%;
+    animation-delay: -5s;
+  }
+
+  .c {
+    background: #f97316;
+    top: 30%;
+    left: 35%;
+    width: 30vmax;
+    animation-delay: -9s;
+  }
+
+  h2 {
+    position: relative;
+    margin: 0;
+    font-size: clamp(40px, 10vw, 120px);
+    letter-spacing: -0.04em;
+    color: white;
+    mix-blend-mode: overlay;
+  }
+
+  @keyframes drift {
+    to {
+      transform: translate(10vw, 8vh) scale(1.2);
+    }
+  }
+</style>

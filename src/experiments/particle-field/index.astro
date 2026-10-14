@@ -1,0 +1,88 @@
+<canvas id="particles"></canvas>
+
+<style>
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #0b0d12;
+  }
+</style>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('#particles')!;
+  const ctx = canvas.getContext('2d')!;
+  const LINK_DISTANCE = 120;
+  const pointer = { x: -9999, y: -9999 };
+
+  type Particle = { x: number; y: number; vx: number; vy: number };
+  let particles: Particle[] = [];
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const { width, height } = canvas.getBoundingClientRect();
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.round((width * height) / 9000);
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+    }));
+  }
+
+  function tick() {
+    const { width, height } = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, width, height);
+
+    for (const p of particles) {
+      const dx = p.x - pointer.x;
+      const dy = p.y - pointer.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 100) {
+        p.vx += (dx / dist) * 0.3;
+        p.vy += (dy / dist) * 0.3;
+      }
+      p.vx *= 0.98;
+      p.vy *= 0.98;
+      p.x = (p.x + p.vx + width) % width;
+      p.y = (p.y + p.vy + height) % height;
+    }
+
+    for (let i = 0; i < particles.length; i++) {
+      const a = particles[i];
+      for (let j = i + 1; j < particles.length; j++) {
+        const b = particles[j];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (dist < LINK_DISTANCE) {
+          ctx.strokeStyle = `rgba(24, 188, 242, ${1 - dist / LINK_DISTANCE})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+      ctx.fillStyle = '#e6f8ff';
+      ctx.fillRect(a.x - 1.5, a.y - 1.5, 3, 3);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  canvas.addEventListener('pointermove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = e.clientX - rect.left;
+    pointer.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('pointerleave', () => {
+    pointer.x = pointer.y = -9999;
+  });
+  window.addEventListener('resize', resize);
+
+  resize();
+  tick();
+</script>

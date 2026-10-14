@@ -1,0 +1,54 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #15181d;
+  --muted: #5d6673;
+  --border: #e2e5ea;
+  --accent: #18bcf2;
+  --radius: 14px;
+  --header-height: 64px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1013;
+    --surface: #171a1f;
+    --text: #eef1f5;
+    --muted: #98a1ad;
+    --border: #2a2f37;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+}
+
+/* Set by the build-time screenshot integration. */
+html[data-screenshot] {
+  --header-height: 0px;
+}
+
+html[data-screenshot] .experiment-header {
+  display: none;
+}

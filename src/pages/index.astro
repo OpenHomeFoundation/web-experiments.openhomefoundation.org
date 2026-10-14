@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import ExperimentCard from '../components/ExperimentCard.astro';
+import { getExperiments } from '../lib/experiments';
+
+const experiments = getExperiments();
+---
+
+<Base title="Web Experiments" description="A collection of small web experiments.">
+  <main>
+    <header>
+      <h1>Web Experiments</h1>
+      <p>A playground of small, self-contained ideas for the web.</p>
+    </header>
+
+    <section class="grid">
+      {experiments.map((experiment) => (
+        <ExperimentCard experiment={experiment} />
+      ))}
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 16px 80px;
+  }
+
+  header {
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 17px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 24px;
+  }
+</style>

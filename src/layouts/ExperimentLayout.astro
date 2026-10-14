@@ -1,0 +1,23 @@
+---
+import Base from './Base.astro';
+import ExperimentHeader from '../components/ExperimentHeader.astro';
+import type { ExperimentMeta } from '../lib/experiments';
+
+type Props = ExperimentMeta;
+
+const meta = Astro.props;
+---
+
+<Base title={`${meta.title} · Web Experiments`} description={meta.description}>
+  <ExperimentHeader {...meta} />
+  <main id="experiment" data-screenshot-delay={meta.screenshotDelay ?? 0}>
+    <slot />
+  </main>
+</Base>
+
+<style>
+  #experiment {
+    position: relative;
+    min-height: calc(100dvh - var(--header-height));
+  }
+</style>

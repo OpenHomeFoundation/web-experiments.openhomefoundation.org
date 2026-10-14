@@ -1,0 +1,21 @@
+---
+import ExperimentLayout from '../../layouts/ExperimentLayout.astro';
+import { getExperiments, type Experiment } from '../../lib/experiments';
+
+export function getStaticPaths() {
+  return getExperiments().map((experiment) => ({
+    params: { slug: experiment.slug },
+    props: { experiment },
+  }));
+}
+
+interface Props {
+  experiment: Experiment;
+}
+
+const { Component, slug: _slug, ...meta } = Astro.props.experiment;
+---
+
+<ExperimentLayout {...meta}>
+  <Component />
+</ExperimentLayout>
