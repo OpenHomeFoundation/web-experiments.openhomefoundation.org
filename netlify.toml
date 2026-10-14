@@ -1,0 +1,9 @@
+[build]
+  # Chromium is needed for the build-time experiment screenshots.
+  command = "npx playwright install chromium && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Install the browser inside node_modules so Netlify's dependency cache keeps it between builds.
+  PLAYWRIGHT_BROWSERS_PATH = "0"
