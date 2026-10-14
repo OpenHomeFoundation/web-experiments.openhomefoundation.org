@@ -1,0 +1,20 @@
+{
+  "name": "Web Experiments",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  // Installs dependencies, plus Chromium and its system libraries for the build-time screenshots.
+  "postCreateCommand": "npm ci && npx playwright install --with-deps chromium",
+  "forwardPorts": [4321],
+  "portsAttributes": {
+    "4321": { "label": "Astro dev server", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "[astro]": { "editor.defaultFormatter": "astro-build.astro-vscode" }
+      }
+    }
+  }
+}

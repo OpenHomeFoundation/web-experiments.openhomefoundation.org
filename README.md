@@ -4,6 +4,10 @@ An [Astro](https://astro.build) site for showing off small web experiments. Each
 
 ## Getting started
 
+The quickest way is the included dev container: open the repo in VS Code and choose **Reopen in Container**, or start a GitHub Codespace. Dependencies and Chromium are installed for you. Then run `npm run dev`.
+
+To set it up locally instead:
+
 ```sh
 npm install
 npx playwright install chromium   # needed for build-time screenshots
