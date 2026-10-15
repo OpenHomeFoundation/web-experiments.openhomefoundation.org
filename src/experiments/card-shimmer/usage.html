@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="shimmer-border.css" />
+
+<!-- Any element with a border-radius works -->
+<div class="card" data-shimmer>Plays once when scrolled into view</div>
+<div class="card" data-shimmer="always">Plays every time it scrolls into view</div>
+<div class="card" data-shimmer="hover" tabindex="0">Plays on hover or focus</div>
+<div class="card shimmer--rainbow" data-shimmer="hover" tabindex="0">Rainbow</div>
+
+<script type="module">
+  import { initShimmer } from './shimmer-border.js';
+  initShimmer();
+</script>
