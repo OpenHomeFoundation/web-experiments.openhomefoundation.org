@@ -1,0 +1,90 @@
+/*
+ * Shimmer border: a comet of light that sweeps once around an element's border.
+ * Works on any element with a border-radius. Pair with shimmer-border.js, or add
+ * the .is-shimmering class yourself to play it.
+ */
+@property --shimmer-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+/* Scales the tail: short as the comet sets off, full length mid-sweep, short again at the end. */
+@property --shimmer-stretch {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+.shimmer {
+  --shimmer-color: rgb(255 255 255 / 0.95);
+  --shimmer-width: 1px;
+  --shimmer-length: 90deg;
+  --shimmer-start: -60deg;
+  --shimmer-duration: 1.8s;
+  --shimmer-ease: cubic-bezier(0.45, 0, 0.25, 1);
+  position: relative;
+  isolation: isolate;
+}
+.shimmer::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--shimmer-width) * -1);
+  z-index: 1;
+  padding: var(--shimmer-width);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from calc(var(--shimmer-start) + var(--shimmer-angle)),
+    transparent 0deg,
+    transparent calc(360deg - var(--shimmer-length) * var(--shimmer-stretch)),
+    var(--shimmer-color) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.shimmer.is-shimmering::before {
+  animation: shimmer-sweep var(--shimmer-duration) var(--shimmer-ease) var(--shimmer-delay, 0ms)
+    both;
+}
+@keyframes shimmer-sweep {
+  0% {
+    --shimmer-angle: 0deg;
+    --shimmer-stretch: 0.2;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  50% {
+    --shimmer-stretch: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    --shimmer-angle: 360deg;
+    --shimmer-stretch: 0.2;
+    opacity: 0;
+  }
+}
+/* Same length and linear fade-in as the white tail, with the colours ramping up in opacity. */
+.shimmer--rainbow::before {
+  background: conic-gradient(
+    from calc(var(--shimmer-start) + var(--shimmer-angle)),
+    transparent 0deg,
+    transparent calc(360deg - var(--shimmer-length) * var(--shimmer-stretch)),
+    rgb(255 95 109 / 0.2) calc(360deg - var(--shimmer-length) * var(--shimmer-stretch) * 0.8),
+    rgb(255 195 113 / 0.4) calc(360deg - var(--shimmer-length) * var(--shimmer-stretch) * 0.6),
+    rgb(71 232 145 / 0.6) calc(360deg - var(--shimmer-length) * var(--shimmer-stretch) * 0.4),
+    rgb(58 184 255 / 0.8) calc(360deg - var(--shimmer-length) * var(--shimmer-stretch) * 0.2),
+    rgb(176 107 255 / 0.95) 360deg
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer.is-shimmering::before {
+    animation: none;
+  }
+}

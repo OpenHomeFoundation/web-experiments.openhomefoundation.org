@@ -1,0 +1,567 @@
+---
+import { Code } from 'astro:components';
+import css from './shimmer-border.css?raw';
+import js from './shimmer-border.js?raw';
+import html from './usage.html?raw';
+
+const snippets = [
+  { title: 'HTML', file: 'index.html', lang: 'html', code: html },
+  { title: 'CSS', file: 'shimmer-border.css', lang: 'css', code: css },
+  { title: 'JS', file: 'shimmer-border.js', lang: 'js', code: js },
+] as const;
+---
+
+<!-- The same CSS that is shown in the copy-paste section below. -->
+<style is:inline set:html={css}></style>
+
+<div class="stage">
+  <section>
+    <h2>Card shimmer</h2>
+    <p class="sub">Hover, re-trigger on every scroll, and the rainbow variant</p>
+    <div class="grid">
+      <div class="card" data-shimmer="hover" tabindex="0">
+        <h3>Hover me</h3>
+        <p>data-shimmer="hover"</p>
+      </div>
+      <div class="card" data-shimmer="always">
+        <h3>Every time</h3>
+        <p>data-shimmer="always" — scroll away and back.</p>
+      </div>
+      <div class="card shimmer--rainbow" data-shimmer="hover" tabindex="0">
+        <h3>Rainbow</h3>
+        <p>.shimmer--rainbow (hover)</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Use it on a site</h2>
+    <p class="sub">
+      Copy the CSS and JS into the project, then add <code>data-shimmer</code> to any element
+    </p>
+    <div class="snippets">
+      {snippets.map((s) => (
+        <figure class="snippet">
+          <figcaption>
+            <span>
+              {s.title} <small>{s.file}</small>
+            </span>
+            <button class="copy" type="button">
+              Copy
+            </button>
+          </figcaption>
+          <Code code={s.code.trim()} lang={s.lang} theme="github-dark" />
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <!-- Only shown with ?debug -->
+  <section id="debug" hidden>
+    <h2>How it works</h2>
+    <p class="sub">
+      The same effect with each layer exposed — step through, or flip the switches yourself
+    </p>
+    <div class="xray-wrap">
+      <div class="card shimmer xray" id="xray">
+        <div class="label">Card content sits here</div>
+        <div class="hub">
+          <span class="hand" id="hand"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="readout" id="readout">
+          --shimmer-angle: 0deg
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="steps" id="steps">
+          <button data-step="1">1. Gradient</button>
+          <button data-step="2">2. Mask</button>
+          <button data-step="3">3. 1px ring</button>
+          <button data-step="4">4. Final</button>
+        </div>
+        <p class="note" id="note"></p>
+
+        <label class="ctrl">
+          <span>
+            Mask<small>Cuts out the middle, leaving the border ring</small>
+          </span>
+          <input type="checkbox" id="c-mask" />
+        </label>
+        <label class="ctrl">
+          <span>
+            Fade in / out<small>Opacity keyframes at start and end</small>
+          </span>
+          <input type="checkbox" id="c-fade" />
+        </label>
+        <label class="ctrl">
+          <span>
+            Easing<small>Off = linear, constant speed</small>
+          </span>
+          <input type="checkbox" id="c-ease" />
+        </label>
+        <label class="ctrl">
+          <span>
+            Guides<small>Gradient centre and current angle</small>
+          </span>
+          <input type="checkbox" id="c-guides" checked />
+        </label>
+        <label class="ctrl">
+          <span>
+            Ring width<small>--shimmer-width</small>
+          </span>
+          <input type="range" id="r-width" min="1" max="60" value="1" />
+          <output id="o-width"></output>
+        </label>
+        <label class="ctrl">
+          <span>
+            Tail length<small>--shimmer-length</small>
+          </span>
+          <input type="range" id="r-length" min="10" max="360" value="90" />
+          <output id="o-length"></output>
+        </label>
+        <label class="ctrl">
+          <span>
+            Duration<small>--shimmer-duration</small>
+          </span>
+          <input type="range" id="r-dur" min="0.5" max="8" step="0.1" value="1.8" />
+          <output id="o-dur"></output>
+        </label>
+        <div class="row pause-row">
+          <button id="pause">Pause</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .stage {
+    min-height: calc(100dvh - var(--header-height));
+    background: #000;
+    color: #fff;
+    color-scheme: dark;
+    font:
+      15px/1.5 system-ui,
+      sans-serif;
+  }
+  section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 64px 16px;
+  }
+  h2 {
+    text-align: center;
+    font-size: 32px;
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+  p.sub {
+    text-align: center;
+    color: #9aa4b2;
+    margin: 0 0 40px;
+  }
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .card {
+    border: 1px solid rgb(30 110 220 / 0.35);
+    border-radius: 14px;
+    padding: 24px;
+    background: linear-gradient(180deg, #071a2e 0%, #000 100%);
+  }
+  .card h3 {
+    margin: 12px 0 6px;
+    font-weight: 500;
+    font-size: 17px;
+  }
+  .card p {
+    margin: 0;
+    color: #9aa4b2;
+    font-size: 13px;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #0b5fd6;
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  /* ---- Copy-paste snippets ---- */
+  .snippets {
+    display: grid;
+    gap: 16px;
+  }
+  .snippet {
+    margin: 0;
+    border: 1px solid #1c2633;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #05090f;
+  }
+  .snippet figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px 10px 16px;
+    border-bottom: 1px solid #1c2633;
+    font-size: 14px;
+  }
+  .snippet small {
+    margin-left: 6px;
+    color: #6b7685;
+    font:
+      12px ui-monospace,
+      monospace;
+  }
+  .snippet .copy {
+    padding: 4px 12px;
+    font-size: 13px;
+  }
+  .snippet :global(pre) {
+    margin: 0;
+    padding: 16px;
+    max-height: 360px;
+    overflow: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    background: transparent !important;
+  }
+  p.sub code {
+    font:
+      13px ui-monospace,
+      monospace;
+    color: #cfd6df;
+  }
+
+  /* ---- X-ray breakdown card ---- */
+  .xray-wrap {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .xray-wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+  .xray {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    overflow: visible;
+  }
+  /* Loops forever, independent of the observer. */
+  .xray::before {
+    inset: -1px;
+    animation: xray-spin-fade var(--shimmer-duration) var(--shimmer-ease) infinite;
+  }
+  .xray.no-fade::before {
+    animation-name: xray-spin;
+    opacity: 1;
+  }
+  .xray.no-mask::before {
+    -webkit-mask: none;
+    mask: none;
+  }
+  .xray.linear {
+    --shimmer-ease: linear;
+  }
+  .xray.paused::before {
+    animation-play-state: paused;
+  }
+  @keyframes xray-spin {
+    from {
+      --shimmer-angle: 0deg;
+    }
+    to {
+      --shimmer-angle: 360deg;
+    }
+  }
+  @keyframes xray-spin-fade {
+    0% {
+      --shimmer-angle: 0deg;
+      --shimmer-stretch: 0.2;
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    50% {
+      --shimmer-stretch: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      --shimmer-angle: 360deg;
+      --shimmer-stretch: 0.2;
+      opacity: 0;
+    }
+  }
+  .xray .hub {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+  }
+  .xray .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff5f6d;
+    box-shadow: 0 0 0 4px rgb(255 95 109 / 0.25);
+  }
+  .xray .hand {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    width: 2px;
+    height: 75%;
+    margin-left: -1px;
+    background: linear-gradient(to top, #ff5f6d, transparent);
+    transform-origin: 50% 100%;
+  }
+  .xray.hide-guides .hub {
+    display: none;
+  }
+  .xray .readout {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    top: calc(50% + 28px);
+    text-align: center;
+    font:
+      12px/1.4 ui-monospace,
+      monospace;
+    color: #ff9aa2;
+  }
+  .xray .label {
+    position: relative;
+    z-index: 0;
+    text-align: center;
+    color: #5b6573;
+    font-size: 13px;
+  }
+
+  .panel {
+    border: 1px solid #1c2633;
+    border-radius: 14px;
+    padding: 20px;
+    background: #05090f;
+  }
+  .ctrl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid #111a24;
+    font-size: 14px;
+  }
+  .ctrl small {
+    display: block;
+    color: #6b7685;
+    font-size: 12px;
+  }
+  .ctrl input[type='range'] {
+    width: 120px;
+    accent-color: #3ab8ff;
+  }
+  .ctrl input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3ab8ff;
+    flex: none;
+  }
+  .ctrl output {
+    font:
+      12px ui-monospace,
+      monospace;
+    color: #9aa4b2;
+    min-width: 44px;
+    text-align: right;
+  }
+  .steps {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .steps button {
+    background: #0d1a2a;
+    border: 1px solid #1e3a5f;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .steps button.on {
+    background: #0b5fd6;
+    border-color: #0b5fd6;
+  }
+  .note {
+    color: #9aa4b2;
+    font-size: 13px;
+    margin: 0 0 12px;
+    min-height: 3em;
+  }
+  .pause-row {
+    margin-top: 16px;
+  }
+</style>
+
+<script>
+  import { initShimmer } from './shimmer-border.js';
+
+  initShimmer();
+
+  /* ---- Copy buttons ---- */
+  document.querySelectorAll<HTMLButtonElement>('.snippet .copy').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const code = button.closest('.snippet')!.querySelector('pre')!.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Copy failed';
+      }
+      setTimeout(() => (button.textContent = 'Copy'), 1500);
+    });
+  });
+
+  /* ---- X-ray breakdown controls (shown with ?debug) ---- */
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const xray = $('xray');
+  const ctl = {
+    mask: $<HTMLInputElement>('c-mask'),
+    fade: $<HTMLInputElement>('c-fade'),
+    ease: $<HTMLInputElement>('c-ease'),
+    guides: $<HTMLInputElement>('c-guides'),
+    width: $<HTMLInputElement>('r-width'),
+    length: $<HTMLInputElement>('r-length'),
+    dur: $<HTMLInputElement>('r-dur'),
+  };
+  const stepButtons = document.querySelectorAll<HTMLButtonElement>('#steps button');
+
+  function apply() {
+    xray.classList.toggle('no-mask', !ctl.mask.checked);
+    xray.classList.toggle('no-fade', !ctl.fade.checked);
+    xray.classList.toggle('linear', !ctl.ease.checked);
+    xray.classList.toggle('hide-guides', !ctl.guides.checked);
+    xray.style.setProperty('--shimmer-width', ctl.width.value + 'px');
+    xray.style.setProperty('--shimmer-length', ctl.length.value + 'deg');
+    xray.style.setProperty('--shimmer-duration', ctl.dur.value + 's');
+    $('o-width').textContent = ctl.width.value + 'px';
+    $('o-length').textContent = ctl.length.value + '°';
+    $('o-dur').textContent = ctl.dur.value + 's';
+  }
+
+  type Step = {
+    mask: boolean;
+    fade: boolean;
+    ease: boolean;
+    width: number;
+    length: number;
+    dur: number;
+    note: string;
+  };
+
+  const STEPS: Record<string, Step> = {
+    1: {
+      mask: false,
+      fade: false,
+      ease: false,
+      width: 1,
+      length: 90,
+      dur: 4,
+      note: 'A conic-gradient fills the whole box: transparent, then a 90° wedge fading up to white. Animating --shimmer-angle rotates it around the centre point.',
+    },
+    2: {
+      mask: true,
+      fade: false,
+      ease: false,
+      width: 30,
+      length: 90,
+      dur: 4,
+      note: 'The mask subtracts the content-box from the full box. The padding sets the ring width, so only a 30px band of the spinning gradient shows through.',
+    },
+    3: {
+      mask: true,
+      fade: false,
+      ease: false,
+      width: 1,
+      length: 90,
+      dur: 4,
+      note: 'Shrink the padding to 1px and the band becomes the border, so the wedge reads as a comet. It moves faster along the short sides because the angle sweeps evenly, not the distance.',
+    },
+    4: {
+      mask: true,
+      fade: true,
+      ease: true,
+      width: 1,
+      length: 90,
+      dur: 1.8,
+      note: 'Add easing, an opacity fade and a tail that stretches mid-sweep to the keyframes and you have the final effect. In production it runs once, triggered by the observer.',
+    },
+  };
+
+  function setStep(n: string) {
+    const s = STEPS[n];
+    ctl.mask.checked = s.mask;
+    ctl.fade.checked = s.fade;
+    ctl.ease.checked = s.ease;
+    ctl.width.value = String(s.width);
+    ctl.length.value = String(s.length);
+    ctl.dur.value = String(s.dur);
+    $('note').textContent = s.note;
+    stepButtons.forEach((b) => b.classList.toggle('on', b.dataset.step === n));
+    apply();
+  }
+
+  stepButtons.forEach((b) => b.addEventListener('click', () => setStep(b.dataset.step!)));
+  Object.values(ctl).forEach((input) =>
+    input.addEventListener('input', () => {
+      stepButtons.forEach((b) => b.classList.remove('on'));
+      apply();
+    }),
+  );
+  $('pause').addEventListener('click', (e) => {
+    const paused = xray.classList.toggle('paused');
+    (e.currentTarget as HTMLButtonElement).textContent = paused ? 'Play' : 'Pause';
+  });
+
+  // Read the live animated angle back from the pseudo-element to drive the guide hand.
+  const hand = $('hand');
+  const readout = $('readout');
+  function tick() {
+    const cs = getComputedStyle(xray, '::before');
+    const angle = parseFloat(cs.getPropertyValue('--shimmer-angle')) || 0;
+    const start = parseFloat(cs.getPropertyValue('--shimmer-start')) || 0;
+    hand.style.transform = `rotate(${start + angle}deg)`;
+    readout.textContent = `--shimmer-angle: ${angle.toFixed(0)}deg`;
+    requestAnimationFrame(tick);
+  }
+
+  setStep('1');
+  if (new URLSearchParams(location.search).has('debug')) {
+    $('debug').hidden = false;
+    tick();
+  }
+</script>
